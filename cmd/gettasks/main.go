@@ -31,7 +31,7 @@ will be shown as one item.
 
 var (
 	taskre        *regexp.Regexp = regexp.MustCompile(`(?ms)^\s*-\s+\[(.*?)\](.*?)$`)
-	taskstrlinkre *regexp.Regexp = regexp.MustCompile(`(\*\[\[.*?\d{4}\|.*?\.md\]\]\*)`)
+	taskstrlinkre *regexp.Regexp = regexp.MustCompile(`(\*\[\[.*?\d{4}\|.*?(\.md)?\]\]\*)`)
 )
 
 type Task struct {
