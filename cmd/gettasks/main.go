@@ -130,6 +130,7 @@ func main() {
 			isDone := taskMatch[1] == "x"
 			taskLabel := taskMatch[2]
 			taskLabel = taskstrlinkre.ReplaceAllString(taskLabel, "")
+			taskLabel = strings.Trim(taskLabel, " \r\n")
 			taskLabel = strings.Trim(taskLabel, " \n")
 			taskKey := strings.ToLower(taskLabel)
 
