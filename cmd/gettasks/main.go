@@ -94,6 +94,8 @@ func main() {
 	// flagAutoHirearchy := flag.Bool("auto-hirearchy", false, "auto detect hirearchy")
 
 	flag.Parse()
+	
+	*paramFile = filepath.Base(*paramFile)
 
 	if *paramFile == "" {
 		log.Fatalln("File path required")
