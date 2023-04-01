@@ -108,6 +108,8 @@ func main() {
 	// flagAutoHierarchy := flag.Bool("auto-hierarchy", false, "auto detect hierarchy")
 
 	flag.Parse()
+	
+	*paramFile = filepath.Base(*paramFile)
 
 	// set default of -hierarchy list here
 	if len(paramHierarchy) == 0 {
