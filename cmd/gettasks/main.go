@@ -108,7 +108,7 @@ func main() {
 	// flagAutoHierarchy := flag.Bool("auto-hierarchy", false, "auto detect hierarchy")
 
 	flag.Parse()
-	
+
 	*paramFile = filepath.Base(*paramFile)
 
 	// set default of -hierarchy list here
@@ -120,7 +120,6 @@ func main() {
 
 	if *paramFile == "" {
 		log.Fatalln("File path required")
-
 	}
 
 	vaultPath := path.Dir(*paramFile)
