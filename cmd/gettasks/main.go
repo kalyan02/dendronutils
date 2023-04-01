@@ -158,7 +158,8 @@ func main() {
 		taskMatches := taskre.FindAllStringSubmatch(file.Content, -1)
 
 		for _, taskMatch := range taskMatches {
-			isDone := taskMatch[1] == "x"
+			// match any of the bullet journal symbols
+			isDone := strings.ContainsAny(taskMatch[1], "x-<>")
 			taskLabel := taskMatch[2]
 			taskLabel = taskstrlinkre.ReplaceAllString(taskLabel, "")
 			taskLabel = strings.Trim(taskLabel, " \r\n")
