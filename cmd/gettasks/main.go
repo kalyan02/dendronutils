@@ -49,6 +49,19 @@ type MDFile struct {
 	Created  time.Time
 }
 
+type arrayFlags []string
+
+var paramHierarchy arrayFlags
+
+func (i *arrayFlags) String() string {
+	return "my string representation"
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 func parseMatter(fileContent []byte) (map[string]string, string) {
 	re := regexp.MustCompile(`(?sm)^---\s*$`)
 	parts := re.Split(string(fileContent), 3)
@@ -90,10 +103,18 @@ func filterFileByName(files []*MDFile, filename string) *MDFile {
 func main() {
 	paramFile := flag.String("file", "", "current file")
 	paramWrite := flag.Bool("write", false, "write to selected file")
-	paramHirearchy := flag.String("hirearchy", "daily.journal", "filter tasks from a hirearchy")
-	// flagAutoHirearchy := flag.Bool("auto-hirearchy", false, "auto detect hirearchy")
+	// paramHierarchy := flag.String("hierarchy", "daily.journal", "filter tasks from a hierarchy")
+	flag.Var(&paramHierarchy, "hierarchy", "filter tasks from a hierarchy ( multiple options possible, . will search everything)")
+	// flagAutoHierarchy := flag.Bool("auto-hierarchy", false, "auto detect hierarchy")
 
 	flag.Parse()
+
+	// set default of -hierarchy list here
+	if len(paramHierarchy) == 0 {
+		paramHierarchy = append(paramHierarchy, "daily.journal")
+	}
+
+	*paramFile = filepath.Base(*paramFile)
 
 	if *paramFile == "" {
 		log.Fatalln("File path required")
@@ -115,10 +136,19 @@ func main() {
 		if strings.Contains(*paramFile, file.Filename) {
 			continue
 		}
-		// Include only if hirearchy matches
-		if !strings.Contains(file.Filename, *paramHirearchy) {
+
+		// loop through -hierarchy parameters to check for multiple mach criteria using meta var "match"
+		match := false
+		for _, param := range paramHierarchy {
+
+			if strings.Contains(file.Filename, param) {
+				match = true
+			}
+		}
+		if !match {
 			continue
 		}
+
 		// Ignore if file name has template in it
 		if strings.Contains(file.Filename, "template") {
 			continue
