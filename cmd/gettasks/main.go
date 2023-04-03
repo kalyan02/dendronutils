@@ -203,7 +203,7 @@ func main() {
 	for _, task := range alltasksList {
 		destFile := path.Base(task.OriginFile)
 		destFile = destFile[:strings.LastIndex(destFile, ".md")]
-		taskString := fmt.Sprintf("- [ ] %s *[[%s|%s]]*", task.Name, task.Created.Format("2 Jan 2006"), destFile)
+		taskString := fmt.Sprintf("- [ ] %s *[[%s|%s]]*", task.Name, task.Created.Format("2006-01-02"), destFile)
 		alltasksMdStrings = append(alltasksMdStrings, taskString)
 	}
 
