@@ -30,7 +30,7 @@ will be shown as one item.
 *********************************************************************************/
 
 var (
-	taskre        *regexp.Regexp = regexp.MustCompile(`(?ms)^\s*-\s+\[(.*?)\](.*?)$`)
+	taskre        *regexp.Regexp = regexp.MustCompile(`(?ms)^\s*-\s+\[(.?)\](.*?)$`)
 	taskstrlinkre *regexp.Regexp = regexp.MustCompile(`(\*\[\[.*?\d{4}\|.*?(\.md)?\]\]\*)`)
 )
 
@@ -203,7 +203,8 @@ func main() {
 	for _, task := range alltasksList {
 		destFile := path.Base(task.OriginFile)
 		destFile = destFile[:strings.LastIndex(destFile, ".md")]
-		taskString := fmt.Sprintf("- [ ] %s *[[%s|%s]]*", task.Name, task.Created.Format("2006-01-02"), destFile)
+		// taskString := fmt.Sprintf("- [ ] %s *[[%s|%s]]*", task.Name, task.Created.Format("2006-01-02"), destFile)
+		taskString := fmt.Sprintf("- [ ] %s *[[%s|%s]]*", task.Name, task.Created.Format("2 Jan 2006"), destFile)
 		alltasksMdStrings = append(alltasksMdStrings, taskString)
 	}
 
