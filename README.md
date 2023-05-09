@@ -33,8 +33,8 @@ Simply run
 Usage of ./gettasks:
   -file string
     	current file
-  -hirearchy string
-    	filter tasks from a hirearchy (default "daily.journal")
+  -hierarchy string
+    	filter tasks from a hierarchy (default "daily.journal")
   -write
     	write to selected file
 ```

@@ -30,7 +30,7 @@ will be shown as one item.
 *********************************************************************************/
 
 var (
-	taskre        *regexp.Regexp = regexp.MustCompile(`(?ms)^\s*-\s+\[(.*?)\](.*?)$`)
+	taskre        *regexp.Regexp = regexp.MustCompile(`(?ms)^\s*-\s+\[(.?)\](.*?)$`)
 	taskstrlinkre *regexp.Regexp = regexp.MustCompile(`(\*\[\[.*?\d{4}\|.*?(\.md)?\]\]\*)`)
 )
 
@@ -47,6 +47,19 @@ type MDFile struct {
 	Content  string
 	Matter   map[string]string
 	Created  time.Time
+}
+
+type arrayFlags []string
+
+var paramHierarchy arrayFlags
+
+func (i *arrayFlags) String() string {
+	return "my string representation"
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
 }
 
 func parseMatter(fileContent []byte) (map[string]string, string) {
@@ -90,14 +103,23 @@ func filterFileByName(files []*MDFile, filename string) *MDFile {
 func main() {
 	paramFile := flag.String("file", "", "current file")
 	paramWrite := flag.Bool("write", false, "write to selected file")
-	paramHirearchy := flag.String("hirearchy", "daily.journal", "filter tasks from a hirearchy")
-	// flagAutoHirearchy := flag.Bool("auto-hirearchy", false, "auto detect hirearchy")
+	// paramHierarchy := flag.String("hierarchy", "daily.journal", "filter tasks from a hierarchy")
+	flag.Var(&paramHierarchy, "hierarchy", "filter tasks from a hierarchy ( multiple options possible, . will search everything)")
+	// flagAutoHierarchy := flag.Bool("auto-hierarchy", false, "auto detect hierarchy")
 
 	flag.Parse()
 
+	*paramFile = filepath.Base(*paramFile)
+
+	// set default of -hierarchy list here
+	if len(paramHierarchy) == 0 {
+		paramHierarchy = append(paramHierarchy, "daily.journal")
+	}
+
+	*paramFile = filepath.Base(*paramFile)
+
 	if *paramFile == "" {
 		log.Fatalln("File path required")
-
 	}
 
 	vaultPath := path.Dir(*paramFile)
@@ -115,10 +137,19 @@ func main() {
 		if strings.Contains(*paramFile, file.Filename) {
 			continue
 		}
-		// Include only if hirearchy matches
-		if !strings.Contains(file.Filename, *paramHirearchy) {
+
+		// loop through -hierarchy parameters to check for multiple mach criteria using meta var "match"
+		match := false
+		for _, param := range paramHierarchy {
+
+			if strings.Contains(file.Filename, param) {
+				match = true
+			}
+		}
+		if !match {
 			continue
 		}
+
 		// Ignore if file name has template in it
 		if strings.Contains(file.Filename, "template") {
 			continue
@@ -127,9 +158,11 @@ func main() {
 		taskMatches := taskre.FindAllStringSubmatch(file.Content, -1)
 
 		for _, taskMatch := range taskMatches {
-			isDone := taskMatch[1] == "x"
+			// match any of the bullet journal symbols
+			isDone := strings.ContainsAny(taskMatch[1], "x-<>")
 			taskLabel := taskMatch[2]
 			taskLabel = taskstrlinkre.ReplaceAllString(taskLabel, "")
+			taskLabel = strings.Trim(taskLabel, " \r\n")
 			taskLabel = strings.Trim(taskLabel, " \n")
 			taskKey := strings.ToLower(taskLabel)
 
@@ -170,6 +203,7 @@ func main() {
 	for _, task := range alltasksList {
 		destFile := path.Base(task.OriginFile)
 		destFile = destFile[:strings.LastIndex(destFile, ".md")]
+		// taskString := fmt.Sprintf("- [ ] %s *[[%s|%s]]*", task.Name, task.Created.Format("2006-01-02"), destFile)
 		taskString := fmt.Sprintf("- [ ] %s *[[%s|%s]]*", task.Name, task.Created.Format("2 Jan 2006"), destFile)
 		alltasksMdStrings = append(alltasksMdStrings, taskString)
 	}
